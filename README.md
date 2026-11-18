@@ -1,4 +1,4 @@
-# AgriMate AI (prototype)
+# Nex-Tech (prototype)
 
 Single-page prototype. All data is sample data; no live NASA or weather API is connected.
 

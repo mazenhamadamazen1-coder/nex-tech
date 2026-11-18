@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AgriMate AI — شريكك الذكي في الزراعة وإدارة الأراضي</title>
+<title>Nex-Tech — شريكك الذكي في الزراعة وإدارة الأراضي</title>
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -687,12 +687,373 @@ canvas {
   .fab { animation: none !important; }
   .alert.b { animation: none !important; }
 }
+
+/* ============================================================
+   AUTH FULL-PAGE VIEW
+   ============================================================ */
+#authView {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--anim-normal) var(--ease);
+}
+#authView.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Animated Farm Field Background */
+.auth-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Sky gradient — light mode */
+.auth-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    #87ceeb 0%,
+    #b8e4f7 35%,
+    #d4edda 65%,
+    #8dc57a 100%);
+  transition: background 0.5s var(--ease);
+}
+
+/* Sky gradient — dark mode (night / dusk) */
+[data-theme="dark"] .auth-sky {
+  background: linear-gradient(180deg,
+    #0d1b2a 0%,
+    #1a2d45 30%,
+    #2d4a2d 65%,
+    #1a3a1a 100%);
+}
+
+/* Sun / Moon glow */
+.auth-sun {
+  position: absolute;
+  top: 8%;
+  right: 15%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe066 30%, rgba(255,224,80,0.3) 70%, transparent 100%);
+  box-shadow: 0 0 40px 20px rgba(255,220,60,0.3);
+  animation: sunFloat 8s ease-in-out infinite;
+  transition: background 0.5s;
+}
+[data-theme="dark"] .auth-sun {
+  background: radial-gradient(circle, #c0d8f0 30%, rgba(192,216,240,0.2) 70%, transparent 100%);
+  box-shadow: 0 0 40px 20px rgba(192,216,240,0.15);
+  top: 10%;
+  right: 10%;
+  width: 40px;
+  height: 40px;
+}
+@keyframes sunFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Clouds */
+.auth-cloud {
+  position: absolute;
+  border-radius: 50px;
+  opacity: 0.75;
+  animation: cloudDrift linear infinite;
+  transition: opacity 0.5s;
+}
+[data-theme="dark"] .auth-cloud { opacity: 0.15; }
+.cloud-1 { background: #fff; width: 120px; height: 36px; top: 12%; animation-duration: 60s; animation-delay: 0s; }
+.cloud-2 { background: #fff; width: 80px; height: 24px; top: 20%; animation-duration: 90s; animation-delay: -20s; }
+.cloud-3 { background: rgba(255,255,255,0.8); width: 60px; height: 20px; top: 8%; animation-duration: 75s; animation-delay: -40s; }
+@keyframes cloudDrift {
+  0%   { transform: translateX(-200px); }
+  100% { transform: translateX(calc(100vw + 200px)); }
+}
+
+/* Ground layers */
+.auth-ground-far {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 42%;
+  background: linear-gradient(180deg, #6aad55 0%, #4e8a3c 100%);
+  transition: background 0.5s;
+}
+[data-theme="dark"] .auth-ground-far {
+  background: linear-gradient(180deg, #1e3d1e 0%, #152b15 100%);
+}
+.auth-ground-near {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28%;
+  background: linear-gradient(180deg, #7bbf62 0%, #5a9440 100%);
+  transition: background 0.5s;
+}
+[data-theme="dark"] .auth-ground-near {
+  background: linear-gradient(180deg, #264526 0%, #1a2f1a 100%);
+}
+
+/* Wheat SVG container */
+.auth-wheat-row {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 42%;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Individual wheat stalks via CSS */
+.wheat {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  animation: sway ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes sway {
+  0%   { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
+}
+
+/* Pollen/particles floating */
+.pollen {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,220,80,0.7);
+  animation: pollenFloat linear infinite;
+  will-change: transform, opacity;
+}
+[data-theme="dark"] .pollen { background: rgba(180,220,255,0.4); }
+@keyframes pollenFloat {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.7; }
+  50%  { opacity: 0.5; }
+  100% { transform: translate(var(--px), var(--py)) scale(0.5); opacity: 0; }
+}
+
+/* Auth Card */
+.auth-card-wrap {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  transform: translateY(30px);
+  transition: transform var(--anim-normal) var(--ease-bounce), opacity var(--anim-normal) var(--ease);
+  opacity: 0;
+}
+#authView.active .auth-card-wrap {
+  transform: translateY(0);
+  opacity: 1;
+  transition-delay: 100ms;
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.auth-logo-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--g);
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.auth-logo h1 {
+  font-size: clamp(1.3rem, 4vw, 1.7rem);
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+.auth-logo p {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin: 4px 0 0;
+}
+
+.auth-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.1);
+  backdrop-filter: blur(4px);
+}
+
+/* Tab switcher with sliding indicator */
+.auth-tabs {
+  display: flex;
+  position: relative;
+  background: var(--sage);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 20px;
+  gap: 0;
+}
+.auth-tab-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--mut);
+  transition: color var(--anim-fast) var(--ease);
+  position: relative;
+  z-index: 2;
+  min-height: 44px;
+}
+.auth-tab-btn.active-tab { color: var(--tx); }
+.auth-tab-slider {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: calc(50% - 3px);
+  background: var(--card);
+  border-radius: 7px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  transition: transform var(--anim-normal) var(--ease-bounce);
+  z-index: 1;
+}
+/* When register tab is active, slide right (LTR offset) or left (RTL) */
+[dir="ltr"] .auth-tab-slider.on-register { transform: translateX(calc(100% + 3px)); }
+[dir="rtl"] .auth-tab-slider.on-register { transform: translateX(calc(-100% - 3px)); }
+
+.auth-back-btn {
+  position: absolute;
+  top: 16px;
+  inset-inline-start: 16px;
+  background: rgba(255,255,255,0.85);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: transform var(--anim-fast) var(--ease), background var(--anim-fast);
+  z-index: 11;
+}
+.auth-back-btn:hover { transform: scale(1.1); background: #fff; }
+[data-theme="dark"] .auth-back-btn { background: rgba(40,60,40,0.9); color: #fff; }
 </style>
 </head>
 <body>
 
 <!-- Backdrop Overlay for Mobile Drawer -->
 <div id="sbBackdrop" class="drawer-backdrop" onclick="toggleSidebar(false)"></div>
+
+<!-- ============================================================
+     FULL-PAGE AUTH VIEW (Login / Register)
+     ============================================================ -->
+<div id="authView" role="dialog" aria-modal="true" aria-label="تسجيل الدخول">
+
+  <!-- Animated Farm Background -->
+  <div class="auth-bg">
+    <div class="auth-sky"></div>
+    <div class="auth-sun"></div>
+    <!-- Clouds -->
+    <div class="auth-cloud cloud-1" style="inset-inline-start:10%"></div>
+    <div class="auth-cloud cloud-2" style="inset-inline-start:55%"></div>
+    <div class="auth-cloud cloud-3" style="inset-inline-start:30%"></div>
+    <!-- Ground layers -->
+    <div class="auth-ground-far"></div>
+    <div class="auth-ground-near"></div>
+    <!-- Wheat stalks rendered by JS -->
+    <div class="auth-wheat-row" id="wheatRow"></div>
+    <!-- Pollen particles rendered by JS -->
+    <div id="pollenLayer"></div>
+  </div>
+
+  <!-- Back button -->
+  <button class="auth-back-btn" onclick="closeAuthView()" aria-label="رجوع" title="رجوع">
+    <span id="authBackIcon">←</span>
+  </button>
+
+  <!-- Auth Card -->
+  <div class="auth-card-wrap">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F4F3EA" stroke-width="2.2" stroke-linecap="round">
+          <path d="M12 21V9M12 13c-4 0-6-2-6-6 4 0 6 2 6 6zM12 15c3 0 5-1.5 5-5-3.5 0-5 1.5-5 5z"/>
+        </svg>
+      </div>
+      <h1>Nex-Tech</h1>
+      <p id="authLogoSub">الزراعة الذكية — من البذرة للحصاد</p>
+    </div>
+
+    <div class="auth-card">
+      <!-- Tab Switcher -->
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab-btn active-tab" id="authTabLogin" role="tab" aria-selected="true"
+                onclick="switchAuthTab('login')">تسجيل الدخول</button>
+        <button class="auth-tab-btn" id="authTabRegister" role="tab" aria-selected="false"
+                onclick="switchAuthTab('register')">حساب جديد</button>
+        <div class="auth-tab-slider" id="authTabSlider"></div>
+      </div>
+
+      <!-- Register-only fields -->
+      <div id="authRegFields" style="display:none" class="form-group">
+        <label id="lAuthName">الاسم بالكامل:</label>
+        <input type="text" id="authName" placeholder="مثال: الحاج أحمد عبد الرحمن" autocomplete="name" style="font-size:16px">
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label id="lAuthEmail">البريد الإلكتروني:</label>
+        <input type="email" id="authEmail" placeholder="farmer@example.com" autocomplete="username" style="font-size:16px">
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label id="lAuthPass">كلمة المرور (8 أحرف فأكثر):</label>
+        <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password" style="font-size:16px"
+               onkeydown="if(event.key==='Enter') submitAuthForm()">
+      </div>
+
+      <!-- Alert box -->
+      <div id="authAlert" style="display:none;margin-top:10px" class="alert b"></div>
+
+      <!-- Submit -->
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn p" id="authSubmitBtn" onclick="submitAuthForm()" style="flex:1;min-height:48px;font-size:1rem">
+          🚀 <span id="authSubmitLabel">دخول</span>
+        </button>
+      </div>
+
+      <div class="meta" style="margin-top:14px;font-size:11.5px;text-align:center">
+        🛡️ مشفر بـ PBKDF2 (600,000 دورة) • Rate Limiting • عزل تام للبيانات
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="app">
   <!-- Sidebar -->
@@ -704,7 +1065,7 @@ canvas {
         </svg>
       </div>
       <div>
-        <span>AgriMate AI</span>
+        <span>Nex-Tech</span>
         <div class="brand-sub" id="brandSub">الزراعة الذكية & NASA</div>
       </div>
     </div>
@@ -722,7 +1083,7 @@ canvas {
       </div>
       <div class="header-actions">
         <button class="btn sm" id="locBtn" title="تحديث الموقع الجغرافي">📍 <span id="locName">الدلتا (30.8°, 31.0°)</span></button>
-        <button class="btn sm" id="authBtn" onclick="openAuthModal()">👤 <span id="authLabel">دخول / حساب</span></button>
+        <button class="btn sm" id="authBtn" onclick="openAuthView('login')">👤 <span id="authLabel">دخول / حساب</span></button>
         <button class="btn sm" id="th" title="تبديل المظهر">◐</button>
         <button class="btn sm" id="lg" title="تبديل اللغة">English</button>
       </div>
@@ -743,7 +1104,7 @@ canvas {
 
 <!-- Floating Action Button for AI Chat -->
 <button class="fab" id="fab">
-  <span>✦</span> <span id="fabText">اسأل أجري ميت</span>
+  <span>✦</span> <span id="fabText">اسأل Nex-Tech</span>
 </button>
 
 <!-- Reusable Modal Container -->
@@ -751,7 +1112,7 @@ canvas {
 
 <script>
 /* ==============================================================
-   AgriMate AI — Complete Integrated Platform
+   Nex-Tech — Complete Integrated Agricultural Platform
    Features:
    - Leaflet.js with Satellite (Esri) & OpenStreetMap Layers
    - Open-Meteo Live Weather API (Free & Real-time)
@@ -810,7 +1171,7 @@ let aiConfig = getStorage('ai_config', {
 
 // Chat History in localStorage
 let chatHistory = getStorage('chat_history', [
-  { role: 'model', text: 'أهلاً بك يا حاج في AgriMate AI! أنا مساعدك الزراعي الذكي المربوط ببيانات NASA وأرصاد الطقس والتربة. اسألني عن مواعيد الري، التسميد، اصفرار الأوراق، أو خطة محصولك اليوم.' }
+  { role: 'model', text: 'أهلاً بك يا حاج في Nex-Tech AI! أنا مساعدك الزراعي الذكي المربوط ببيانات NASA وأرصاد الطقس والتربة. اسألني عن مواعيد الري، التسميد، اصفرار الأوراق، أو خطة محصولك اليوم.' }
 ]);
 
 // Live Cache Storage
@@ -838,7 +1199,7 @@ const I = {
       "التقارير والتحليلات",
       "الإعدادات والربط"
     ],
-    fab: "اسأل أجري ميت",
+    fab: "اسأل Nex-Tech",
     farms: "الأراضي المسجلة",
     area: "المساحة المزروعة",
     ha: "فدان",
@@ -886,7 +1247,7 @@ const I = {
       "Reports & Analytics",
       "Settings & APIs"
     ],
-    fab: "Ask AgriMate",
+    fab: "Ask Nex-Tech",
     farms: "Registered Farms",
     area: "Cultivated Area",
     ha: "Feddan",
@@ -1445,7 +1806,7 @@ const R = {
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
           <div>
-            <h2>🤖 ${L==='ar'?'المستشار الزراعي الذكي — AgriMate AI':'AgriMate AI Agronomist'}</h2>
+            <h2>🤖 ${L==='ar'?'المستشار الزراعي الذكي — Nex-Tech AI':'Nex-Tech AI Agronomist'}</h2>
             <div class="sub">${L==='ar'?'خبير زراعي مصري مدعوم ببيانات الأقمار الصناعية والأرصاد الجوية':'AI Agronomist specialized in Egyptian & Arab crops and NASA data'}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
@@ -2049,7 +2410,7 @@ async function callAI(userPrompt, imageBase64 = null) {
       });
     }
 
-    const sysPrompt = "أنت AgriMate AI، مستشار ومهندس زراعي خبير متخصص في الزراعة الدقيقة والمحاصيل المصرية والعربية وتحليل بيانات أقمار NASA الفضائية (SMAP، Sentinel-2، MODIS) وإدارة الري والتسميد والآفات. تحدث بأسلوب عملي وناصح وودود ومحترم (مثل 'يا حاج' أو 'يا باشمهندس')، وقدم حلولاً عملية بجرعات وتوقيتات محددة.";
+    const sysPrompt = "أنت Nex-Tech AI، مستشار ومهندس زراعي خبير متخصص في الزراعة الدقيقة والمحاصيل المصرية والعربية وتحليل بيانات أقمار NASA الفضائية (SMAP، Sentinel-2، MODIS) وإدارة الري والتسميد والآفات. تحدث بأسلوب عملي وناصح وودود ومحترم (مثل 'يا حاج' أو 'يا باشمهندس')، وقدم حلولاً عملية بجرعات وتوقيتات محددة.";
 
     const res = await fetch(url, {
       method: 'POST',
@@ -2081,7 +2442,7 @@ async function callAI(userPrompt, imageBase64 = null) {
       body: JSON.stringify({
         model: model,
         messages: [
-          { role: 'system', content: 'أنت AgriMate AI، مستشار ومهندس زراعي ذكي للمزارعين المصريين والعرب، تقدم إرشادات الري والتسميد ومكافحة الآفات وتحليل بيانات NASA بأسلوب مبسط وعلمي.' },
+          { role: 'system', content: 'أنت Nex-Tech AI، مستشار ومهندس زراعي ذكي للمزارعين المصريين والعرب، تقدم إرشادات الري والتسميد ومكافحة الآفات وتحليل بيانات NASA بأسلوب مبسط وعلمي.' },
           { role: 'user', content: userPrompt }
         ]
       })
@@ -2847,7 +3208,7 @@ async function checkAuthSession() {
 function openAuthModal() {
   if (currentUser) {
     const roleTxt = currentUser.role === 'admin' ? (L === 'ar' ? 'مسؤول (Admin)' : 'Admin') : (L === 'ar' ? 'مزارع' : 'Farmer');
-    if (confirm(L === 'ar' 
+    if (confirm(L === 'ar'
       ? `أنت مسجل حالياً باسم: ${currentUser.full_name}\nالرتبة: ${roleTxt}\nالبريد: ${currentUser.email}\n\nهل تريد تسجيل الخروج؟`
       : `Logged in as ${currentUser.full_name} (${roleTxt}). Sign out?`)) {
       fetch('/api/auth/logout', { method: 'POST' }).then(() => {
@@ -2860,63 +3221,112 @@ function openAuthModal() {
     }
     return;
   }
-
-  const m = $('modalBox');
-  m.style.display = 'flex';
-  m.className = 'modal-overlay';
-  authMode = 'login';
-  renderAuthModalContent();
+  openAuthView('login');
 }
 
-function renderAuthModalContent() {
-  const m = $('modalBox');
-  m.innerHTML = `
-    <div class="modal">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="margin:0">🔒 ${authMode === 'login' ? (L==='ar'?'تسجيل الدخول الآمن':'Secure Login') : (L==='ar'?'إنشاء حساب مزارع جديد':'New Account')}</h3>
-        <button class="btn sm" onclick="closeModal()">✕</button>
-      </div>
+// ============================================================
+// FULL-PAGE AUTH VIEW (replaces Modal)
+// ============================================================
+let _authPrevHash = '';
 
-      <div style="display:flex;gap:6px;margin-bottom:14px">
-        <button class="btn sm ${authMode === 'login' ? 'p' : ''}" onclick="toggleAuthTab('login')">${L==='ar'?'تسجيل الدخول':'Sign In'}</button>
-        <button class="btn sm ${authMode === 'register' ? 'p' : ''}" onclick="toggleAuthTab('register')">${L==='ar'?'حساب جديد':'Register'}</button>
-      </div>
-
-      <div id="authRegFields" style="display:${authMode === 'register' ? 'block' : 'none'}" class="form-group">
-        <label>${L==='ar'?'الاسم بالكامل:':'Full Name:'}</label>
-        <input type="text" id="authName" placeholder="مثال: الحاج أحمد عبد الرحمن">
-      </div>
-
-      <div class="form-group">
-        <label>${L==='ar'?'البريد الإلكتروني:':'Email:'}</label>
-        <input type="text" id="authEmail" placeholder="farmer@agrimate.org" autocomplete="username">
-      </div>
-
-      <div class="form-group">
-        <label>${L==='ar'?'كلمة المرور (8 أحرف فأكثر):':'Password (8+ chars):'}</label>
-        <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
-      </div>
-
-      <div id="authAlert" style="display:none;margin-top:10px" class="alert b"></div>
-
-      <div style="display:flex;gap:10px;margin-top:18px">
-        <button class="btn p" id="authSubmitBtn" onclick="submitAuthForm()">🚀 ${authMode === 'login' ? (L==='ar'?'دخول':'Sign In') : (L==='ar'?'تسجيل حساب':'Create Account')}</button>
-        <button class="btn" onclick="closeModal()">${L==='ar'?'إلغاء':'Cancel'}</button>
-      </div>
-      <div class="meta" style="margin-top:12px;font-size:11.5px">
-        🛡️ مشفر بـ PBKDF2 (600,000 دورة) • حماية ضد محاولات الاختراق والقوة الغاشمة (Rate Limiting) • عزل تام للبيانات
-      </div>
-    </div>
-  `;
+function openAuthView(mode) {
+  authMode = mode || 'login';
+  _authPrevHash = window.location.hash;
+  window.location.hash = '#login';
+  updateAuthViewStrings();
+  switchAuthTab(authMode, true);
+  buildWheatField();
+  buildPollenParticles();
+  const view = $('authView');
+  view.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  // Focus first field after transition
+  setTimeout(() => {
+    const firstInput = view.querySelector('input');
+    if (firstInput) firstInput.focus();
+  }, 350);
 }
 
-function toggleAuthTab(mode) {
+function closeAuthView() {
+  const view = $('authView');
+  view.classList.remove('active');
+  document.body.style.overflow = '';
+  // Clear fields
+  ['authEmail','authPassword','authName'].forEach(id => {
+    const el = $(id); if (el) el.value = '';
+  });
+  const alertBox = $('authAlert');
+  if (alertBox) { alertBox.style.display = 'none'; alertBox.textContent = ''; }
+  // Restore hash
+  if (_authPrevHash) {
+    window.location.hash = _authPrevHash;
+  } else {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+}
+
+// Back button icon direction
+function updateAuthBackIcon() {
+  const icon = $('authBackIcon');
+  if (icon) icon.textContent = document.documentElement.dir === 'rtl' ? '→' : '←';
+}
+
+function updateAuthViewStrings() {
+  const isAr = L === 'ar';
+  const sub = $('authLogoSub');
+  if (sub) sub.textContent = isAr ? 'الزراعة الذكية — من البذرة للحصاد' : 'Smart Farming — From Seed to Harvest';
+  const loginTab = $('authTabLogin');
+  const regTab   = $('authTabRegister');
+  if (loginTab) loginTab.textContent = isAr ? 'تسجيل الدخول' : 'Sign In';
+  if (regTab)   regTab.textContent   = isAr ? 'حساب جديد' : 'Register';
+  const lEmail = $('lAuthEmail'); if (lEmail) lEmail.textContent = isAr ? 'البريد الإلكتروني:' : 'Email:';
+  const lPass  = $('lAuthPass');  if (lPass)  lPass.textContent  = isAr ? 'كلمة المرور (8 أحرف فأكثر):' : 'Password (8+ chars):';
+  const lName  = $('lAuthName'); if (lName) lName.textContent = isAr ? 'الاسم بالكامل:' : 'Full Name:';
+  updateAuthSubmitLabel();
+  updateAuthBackIcon();
+}
+
+function updateAuthSubmitLabel() {
+  const lbl = $('authSubmitLabel');
+  if (!lbl) return;
+  if (authMode === 'login') {
+    lbl.textContent = L === 'ar' ? 'دخول' : 'Sign In';
+  } else {
+    lbl.textContent = L === 'ar' ? 'تسجيل حساب' : 'Create Account';
+  }
+}
+
+function switchAuthTab(mode, skipAnim) {
   authMode = mode;
-  renderAuthModalContent();
+  const loginBtn = $('authTabLogin');
+  const regBtn   = $('authTabRegister');
+  const slider   = $('authTabSlider');
+  const regFields = $('authRegFields');
+  if (!loginBtn) return;
+
+  if (mode === 'login') {
+    loginBtn.classList.add('active-tab');   loginBtn.setAttribute('aria-selected','true');
+    regBtn.classList.remove('active-tab');  regBtn.setAttribute('aria-selected','false');
+    if (slider) slider.classList.remove('on-register');
+    if (regFields) regFields.style.display = 'none';
+  } else {
+    regBtn.classList.add('active-tab');     regBtn.setAttribute('aria-selected','true');
+    loginBtn.classList.remove('active-tab'); loginBtn.setAttribute('aria-selected','false');
+    if (slider) slider.classList.add('on-register');
+    if (regFields) regFields.style.display = 'block';
+  }
+  updateAuthSubmitLabel();
+  // Clear alert on tab switch
+  const alertBox = $('authAlert');
+  if (alertBox) { alertBox.style.display = 'none'; alertBox.textContent = ''; }
 }
+
+// Legacy alias kept so any old calls still work
+function renderAuthModalContent() { updateAuthViewStrings(); }
+function toggleAuthTab(mode) { switchAuthTab(mode); }
 
 async function submitAuthForm() {
-  const email = $('authEmail').value.trim();
+  const email    = $('authEmail').value.trim();
   const password = $('authPassword').value;
   const alertBox = $('authAlert');
   alertBox.style.display = 'none';
@@ -2927,14 +3337,17 @@ async function submitAuthForm() {
     return;
   }
 
+  const submitBtn = $('authSubmitBtn');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.7'; }
+
   const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
-  const payload = { email, password };
+  const payload  = { email, password };
   if (authMode === 'register') {
     payload.full_name = $('authName').value.trim() || email.split('@')[0];
   }
 
   try {
-    const res = await fetch(endpoint, {
+    const res  = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -2947,15 +3360,119 @@ async function submitAuthForm() {
     }
 
     currentUser = data.user;
-    closeModal();
+    closeAuthView();
     const authLbl = $('authLabel');
     if (authLbl) authLbl.textContent = currentUser.full_name || currentUser.email.split('@')[0];
     alert(L === 'ar' ? `مرحباً بك يا ${currentUser.full_name}! تم الدخول بأمان.` : `Welcome ${currentUser.full_name}!`);
     await checkAuthSession();
     renderActiveView();
   } catch(e) {
-    alertBox.textContent = L === 'ar' ? 'تعذر الاتصال بالسيرفر، تأكد من تشغيل server.py' : 'Cannot connect to server. Ensure server.py is running.';
+    alertBox.textContent = L === 'ar'
+      ? 'تعذر الاتصال بالسيرفر، تأكد من تشغيل server.py'
+      : 'Cannot connect to server. Ensure server.py is running.';
     alertBox.style.display = 'block';
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = ''; }
+  }
+}
+
+// Close auth view on browser back (#login → '')
+window.addEventListener('hashchange', () => {
+  if (window.location.hash !== '#login') {
+    const view = $('authView');
+    if (view && view.classList.contains('active')) {
+      view.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+});
+
+// ============================================================
+// ANIMATED WHEAT FIELD BUILDER
+// ============================================================
+function buildWheatField() {
+  const row = $('wheatRow');
+  if (!row || row.dataset.built) return;
+  row.dataset.built = '1';
+  const isDark = document.documentElement.dataset.theme === 'dark';
+
+  // 40 wheat stalks across the row
+  for (let i = 0; i < 40; i++) {
+    const pct    = (i / 39) * 100;
+    const height = 60 + Math.random() * 50;        // 60–110px
+    const delay  = (Math.random() * 2).toFixed(2); // 0–2s
+    const dur    = (2.5 + Math.random() * 2).toFixed(2); // 2.5–4.5s
+    const tilt   = (Math.random() * 2 - 1).toFixed(1);   // slight base lean
+
+    const stalk = document.createElement('div');
+    stalk.className = 'wheat';
+    stalk.style.cssText = `
+      left: ${pct}%;
+      width: 6px;
+      height: ${height}px;
+      animation-duration: ${dur}s;
+      animation-delay: -${delay}s;
+      rotate: ${tilt}deg;
+    `;
+
+    // SVG wheat shape
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg   = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '10');
+    svg.setAttribute('height', height);
+    svg.setAttribute('viewBox', `0 0 10 ${height}`);
+
+    // Stalk line
+    const stalkEl = document.createElementNS(svgNS, 'line');
+    stalkEl.setAttribute('x1', '5'); stalkEl.setAttribute('y1', height);
+    stalkEl.setAttribute('x2', '5'); stalkEl.setAttribute('y2', '0');
+    stalkEl.setAttribute('stroke', isDark ? '#4a7c3f' : '#8aad55');
+    stalkEl.setAttribute('stroke-width', '1.5');
+    svg.appendChild(stalkEl);
+
+    // Ear (head) of wheat — ellipses
+    const earColor = isDark ? '#c4a95a' : '#e8c547';
+    for (let g = 0; g < 4; g++) {
+      const y = g * 8;
+      const grain = document.createElementNS(svgNS, 'ellipse');
+      grain.setAttribute('cx', g % 2 === 0 ? '2' : '8');
+      grain.setAttribute('cy', y);
+      grain.setAttribute('rx', '3');
+      grain.setAttribute('ry', '4');
+      grain.setAttribute('fill', earColor);
+      grain.setAttribute('opacity', '0.9');
+      svg.appendChild(grain);
+    }
+
+    stalk.appendChild(svg);
+    row.appendChild(stalk);
+  }
+}
+
+function buildPollenParticles() {
+  const layer = $('pollenLayer');
+  if (!layer || layer.dataset.built) return;
+  layer.dataset.built = '1';
+  layer.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
+
+  for (let i = 0; i < 15; i++) {
+    const p = document.createElement('div');
+    p.className = 'pollen';
+    const startX = Math.random() * 100;
+    const startY = 40 + Math.random() * 50; // start in lower half
+    const moveX  = (Math.random() * 60 - 30).toFixed(0) + 'px';
+    const moveY  = -(Math.random() * 100 + 40).toFixed(0) + 'px';
+    const dur    = (4 + Math.random() * 6).toFixed(1) + 's';
+    const delay  = -(Math.random() * 6).toFixed(1) + 's';
+    p.style.cssText = `
+      left: ${startX}%;
+      top: ${startY}%;
+      --px: ${moveX};
+      --py: ${moveY};
+      animation-duration: ${dur};
+      animation-delay: ${delay};
+    `;
+    layer.appendChild(p);
   }
 }
 
@@ -2964,6 +3481,9 @@ async function submitAuthForm() {
   // Restore Theme
   const savedTheme = getStorage('theme', 'light');
   document.documentElement.dataset.theme = savedTheme;
+
+  // Update auth back-button direction
+  updateAuthBackIcon();
 
   // Check backend session
   checkAuthSession();
